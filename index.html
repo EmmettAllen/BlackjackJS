@@ -50,7 +50,7 @@
 		}
 
 		#dealerArea{
-			height: 35vh;
+			height: 30vh;
 			width: 50%;
 			border-width: 2px;
 			padding-left: 50%;
@@ -59,7 +59,7 @@
 		}
 
 		#playerArea{
-			height: 40vh;
+			height: 30vh;
 			width: 50%;
 			padding-left: 50%;
 			margin-left: -90px;
@@ -114,6 +114,18 @@
 			margin: 0;
 		}
 
+		.control-button{
+			height: 100px;
+			width: 100px;
+			background-color: white;
+			border: solid;
+			border-radius: 3px;
+			border-width: 2px;
+			border-color: black;
+			font-size: 16px;
+			margin-right: 10px;
+		}
+
 	</style>
 </head>
 
@@ -125,9 +137,9 @@
 		</div>
 		<div id = "playerArea"></div>
 		<div id = "controls">
-			<button onclick = "hit();">Hit</button>
-			<button onclick = "stay();">Stay</button>
-			<button onclick = "newGame();">New Game</button>
+			<button onclick = "hit();" class = "control-button">Hit</button>
+			<button onclick = "stay();" class = "control-button">Stay</button>
+			<button onclick = "newGame();" class = "control-button">New Game</button>
 		</div>
 		<div id = "score"></div>
 		<div id = "log"></div>
