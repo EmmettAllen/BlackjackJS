@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>21!</title>
+	<style type="text/css">
+		.card{
+	    	width: 90px;
+	    	height: 131px;
+	    	border: 1px solid #151718;
+	    	float: left;
+	    	margin-right: 5px;
+	    	margin-bottom: 5px;
+	    	border-radius: 2px;
+	    	font-family: courier;
+    		background-color: white;
+    		box-shadow: 0 4px 8px 0 black;
+		}
+
+		.red{
+			color: red;
+		}
+
+		span.suit{
+    		width: 100%;
+    		display: block;
+    		text-align: center;
+    		padding-top: 0px;
+    		font-size: 40px;
+		}
+
+		span.rank-top{
+    		width: 100%;
+    		display: block;
+    		text-align: left;
+    		font-size: 40px;
+		}
+
+		span.rank-bot{
+    		width: 100%;
+    		display: block;
+    		text-align: right;
+    		padding-top: 0px;
+    		font-size: 40px;
+		}
+
+		#playingTable{
+			width: 100%;
+			height: 95vh;
+			background-color: #488214;
+		}
+
+		#dealerArea{
+			height: 35vh;
+			width: 50%;
+			border-width: 2px;
+			padding-left: 50%;
+			margin-left: -90px;
+			padding-top: 50px
+		}
+
+		#playerArea{
+			height: 40vh;
+			width: 50%;
+			padding-left: 50%;
+			margin-left: -90px;
+		}
+
+		.stack{
+			width: 90px;
+	    	height: 131px;
+	    	border: 1px solid #151718;
+	    	border-radius: 3px;
+	    	position: relative;
+	    	left: 20%;
+	    	/*margin-left: -45px;*/
+	    	margin-top: 20px;
+	    	box-shadow: 0 4px 8px 0 black;
+		}
+
+		#dealer-hide{
+			width: 90px;
+	    	height: 131px;
+	    	border: 1px solid #151718;
+	    	border-radius: 3px;
+	    	margin-top: 0px;
+	    	margin-right: 5px;
+	    	box-shadow: 0 4px 8px 0 black;
+	    	float: left;
+		}
+
+		#dealer-show{
+			float: left;
+		}
+
+		#controls{
+			height: 100px;
+			padding: 20px;
+			float: left;
+		}
+
+		#log{
+			padding-right: 20px;
+			text-align: right;
+			font-family: sans-serif;
+			font-size: 40px;
+			float: left;
+			margin-left: 20px;
+		}
+
+		#score{
+			float: left;
+			font-family: sans-serif;
+			font-size: 40px;
+			margin: 0;
+		}
+
+	</style>
+</head>
+
+<body>
+	<div id = "playingTable">
+		<div id = "dealerArea">
+			<div id = "dealer-hide"><img src = "card-back.jpg" style = "height: 131px; width: 90px;"></div>
+			<div id = "dealer-show"></div>
+		</div>
+		<div id = "playerArea"></div>
+		<div id = "controls">
+			<button onclick = "hit();">Hit</button>
+			<button onclick = "stay();">Stay</button>
+			<button onclick = "newGame();">New Game</button>
+		</div>
+		<div id = "score"></div>
+		<div id = "log"></div>
+	</div>
+
+	<script type="text/javascript">
+		function Card(rank, suit){
+			this.rank = rank;
+			this.suit = suit;
+		};
+
+		function Deck(){
+			this.ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+			this.suits = new Array('&spades;', '&clubs;', '&hearts;', '&diams;');
+			cards = [];
+
+			for (var i = 0; i < this.ranks.length; i++) {
+				for (var j = 0; j < this.suits.length; j++) {
+					cards.push(new Card(this.ranks[i], this.suits[j]))
+				}
+			}
+			return cards
+		};
+
+		var myDeck = new Deck();
+
+		function shuffle(){
+    		var i, j, temp;
+    		for (i = 0; i < 5; i++) {
+        		for (j = 0; j < myDeck.length; j++) {
+            		k = Math.floor(Math.random() * myDeck.length);
+            		temp = myDeck[j];
+            		myDeck[j] = myDeck[k];
+            		myDeck[k] = temp;
+        		}
+    		}
+		}
+
+		function playerHit() {
+			var playerCard = myDeck.pop()
+
+			card = document.createElement('div');
+			card.className = 'card'
+
+			if (playerCard.suit === '&hearts;' || playerCard.suit === '&diams;') {
+				card.innerHTML = '<span class = "rank-top red">' + playerCard.rank + '</span> <span class = "suit red">' + playerCard.suit + '</span> <span class = "rank-bot red">' + playerCard.rank + '</span>';
+			} else {
+				card.innerHTML = '<span class = "rank-top">' + playerCard.rank + '</span> <span class = "suit">' + playerCard.suit + '</span> <span class = "rank-bot">' + playerCard.rank + '</span>';
+			}
+			document.getElementById("playerArea").appendChild(card);
+			return playerCard
+		}
+
+		function gameSet(){
+			document.getElementById("playerArea").innerHTML = null
+			document.getElementById("dealer-show").innerHTML = null
+			document.getElementById("dealer-hide").innerHTML = null
+			document.getElementById("dealer-hide").innerHTML = '<img src = "card-back.jpg" style = "height: 131px; width: 90px;">'
+
+			var dealerHidden = myDeck.pop();
+			var playerCard1 = playerHit();
+			var dealerShown = myDeck.pop();
+			var playerCard2 = playerHit();
+			
+			dealerCard = document.createElement('div');
+			dealerCard.className = 'card'
+			if (dealerShown.suit === '&hearts;' || dealerShown.suit === '&diams;') {
+				dealerCard.innerHTML = '<span class = "rank-top red">' + dealerShown.rank + '</span> <span class = "suit red">' + dealerShown.suit + '</span> <span class = "rank-bot red">' + dealerShown.rank + '</span>';
+				document.getElementById("dealer-show").appendChild(dealerCard);
+			} else {
+				dealerCard.innerHTML = '<span class = "rank-top">' + dealerShown.rank + '</span> <span class = "suit">' + dealerShown.suit + '</span> <span class = "rank-bot">' + dealerShown.rank + '</span>';
+				document.getElementById("dealer-show").appendChild(dealerCard);
+			}
+			return [dealerHidden, dealerShown, playerCard1, playerCard2];
+		}
+
+		function dealerHit() {
+			var dealerCard = myDeck.pop()
+
+			card = document.createElement('div');
+			card.className = 'card'
+
+			if (dealerCard.suit === '&hearts;' || dealerCard.suit === '&diams;') {
+				card.innerHTML = '<span class = "rank-top red">' + dealerCard.rank + '</span> <span class = "suit red">' + dealerCard.suit + '</span> <span class = "rank-bot red">' + dealerCard.rank + '</span>';
+			} else {
+				card.innerHTML = '<span class = "rank-top">' + dealerCard.rank + '</span> <span class = "suit">' + dealerCard.suit + '</span> <span class = "rank-bot">' + dealerCard.rank + '</span>';
+			}
+			document.getElementById("dealer-show").appendChild(card);
+
+			return dealerCard
+		}
+
+		shuffle()
+
+		var score = 0
+
+		var cardset = gameSet()
+		var dealerCards = [cardset[0], cardset[1]]
+		var playerCards = [cardset[2], cardset[3]]
+
+		function newGame() {
+			document.getElementById("log").innerHTML = null
+			cardset = gameSet();
+			dealerCards = [cardset[0], cardset[1]]
+			playerCards = [cardset[2], cardset[3]]
+			if (myDeck.length < 13) {
+				myDeck = new Deck();
+				shuffle();
+				document.getElementById("log").innerHTML = "Cards shuffled"
+			}
+		}
+
+		function winCheck() {
+			var dealerSum = 0
+			for (var i = 0; i < dealerCards.length; i++) {
+				if (dealerCards[i].rank == "2" || dealerCards[i].rank == "3" || dealerCards[i].rank == "4" || dealerCards[i].rank == "5" || dealerCards[i].rank == "6" || dealerCards[i].rank == "7" || dealerCards[i].rank == "8" || dealerCards[i].rank == "9" || dealerCards[i].rank == "10") {
+					dealerSum += eval(dealerCards[i].rank)
+				} else if (dealerCards[i].rank == "J" || dealerCards[i].rank == "Q" || dealerCards[i].rank == "K"){
+					dealerSum += 10
+				} else if (dealerCards[i].rank == "A") {
+					if (dealerSum + 11 > 21) {
+						dealerSum++
+					} else {
+						dealerSum += 11
+					}
+				}
+			}
+
+			if (dealerSum > 21) {
+				dealerSum = 0
+				for (var i = 0; i < dealerCards.length; i++){
+					if (dealerCards[i].rank == "2" || dealerCards[i].rank == "3" || dealerCards[i].rank == "4" || dealerCards[i].rank == "5" || dealerCards[i].rank == "6" || dealerCards[i].rank == "7" || dealerCards[i].rank == "8" || dealerCards[i].rank == "9" || dealerCards[i].rank == "10") {
+						dealerSum += eval(dealerCards[i].rank)
+					} else if (dealerCards[i].rank == "J" || dealerCards[i].rank == "Q" || dealerCards[i].rank == "K"){
+						dealerSum += 10
+					} else if (dealerCards[i].rank == "A") {
+						dealerSum++
+					}
+				}
+			}
+
+			var playerSum = 0
+			for (var i = 0; i < playerCards.length; i++) {
+				if (playerCards[i].rank == "2" || playerCards[i].rank == "3" || playerCards[i].rank == "4" || playerCards[i].rank == "5" || playerCards[i].rank == "6" || playerCards[i].rank == "7" || playerCards[i].rank == "8" || playerCards[i].rank == "9" || playerCards[i].rank == "10") {
+					playerSum += eval(playerCards[i].rank)
+				} else if (playerCards[i].rank == "J" || playerCards[i].rank == "Q" || playerCards[i].rank == "K"){
+					playerSum += 10
+				} else if (playerCards[i].rank == "A") {
+					if (playerSum + 11 > 21) {
+						playerSum++
+					} else {
+						playerSum += 11
+					}
+				}
+			}
+
+			if (playerSum > 21) {
+				playerSum = 0
+				for (var i = 0; i < playerCards.length; i++) {
+					if (playerCards[i].rank == "2" || playerCards[i].rank == "3" || playerCards[i].rank == "4" || playerCards[i].rank == "5" || playerCards[i].rank == "6" || playerCards[i].rank == "7" || playerCards[i].rank == "8" || playerCards[i].rank == "9" || playerCards[i].rank == "10") {
+						playerSum += eval(playerCards[i].rank)
+					} else if (playerCards[i].rank == "J" || playerCards[i].rank == "Q" || playerCards[i].rank == "K"){
+						playerSum += 10
+					} else if (playerCards[i].rank == "A") {
+						playerSum++
+					}
+				}
+			}
+
+			if (dealerSum > 21) {
+				document.getElementById("log").innerHTML = "Dealer busts, player wins"
+				score++
+			} else if (playerSum > 21) {
+				document.getElementById("log").innerHTML = "Player busts, dealer wins"
+				score--
+			} else if (playerSum > dealerSum) {
+				document.getElementById("log").innerHTML = "Player wins"
+				score++
+			} else if (dealerSum > playerSum) {
+				document.getElementById("log").innerHTML = "Dealer wins"
+				score--
+			} else {
+				document.getElementById("log").innerHTML = "It's a tie!"
+			}
+
+			document.getElementById("score").innerHTML = "Score: " + score
+		}
+
+		function stay() {
+			card = document.createElement('div');
+			card.className = 'card'
+
+			if (dealerCards[0].suit === '&hearts;' || dealerCards[0].suit === '&diams;') {
+				card.innerHTML = '<span class = "rank-top red">' + dealerCards[0].rank + '</span> <span class = "suit red">' + dealerCards[0].suit + '</span> <span class = "rank-bot red">' + dealerCards[0].rank + '</span>';
+			} else {
+				card.innerHTML = '<span class = "rank-top">' + dealerCards[0].rank + '</span> <span class = "suit">' + dealerCards[0].suit + '</span> <span class = "rank-bot">' + dealerCards[0].rank + '</span>';
+			}
+
+			document.getElementById("dealer-hide").innerHTML = null
+			document.getElementById("dealer-hide").appendChild(card)
+
+			var dealerSum = 0
+
+			while(dealerSum < 17) {
+				dealerSum = 0
+				for (var i = 0; i < dealerCards.length; i++) {
+					if (dealerCards[i].rank == "2" || dealerCards[i].rank == "3" || dealerCards[i].rank == "4" || dealerCards[i].rank == "5" || dealerCards[i].rank == "6" || dealerCards[i].rank ==	 "7" || dealerCards[i].rank == "8" || dealerCards[i].rank == "9" || dealerCards[i].rank == "10") {
+						dealerSum += eval(dealerCards[i].rank)
+					} else if (dealerCards[i].rank == "J" || dealerCards[i].rank == "Q" || dealerCards[i].rank == "K"){
+						dealerSum += 10
+					} else if (dealerCards[i].rank == "A") {
+						if (dealerSum + 11 > 21) {
+							dealerSum++
+						} else {
+							dealerSum += 11
+						}
+					}
+				}
+
+				if (dealerSum > 21) {
+					dealerSum = 0
+					for (var i = 0; i < dealerCards.length; i++){
+						if (dealerCards[i].rank == "2" || dealerCards[i].rank == "3" || dealerCards[i].rank == "4" || dealerCards[i].rank == "5" || dealerCards[i].rank == "6" || dealerCards[i].rank ==	 "7" || dealerCards[i].rank == "8" || dealerCards[i].rank == "9" || dealerCards[i].rank == "10") {
+							dealerSum += eval(dealerCards[i].rank)
+						} else if (dealerCards[i].rank == "J" || dealerCards[i].rank == "Q" || dealerCards[i].rank == "K"){
+							dealerSum += 10
+						} else if (dealerCards[i].rank == "A") {
+							dealerSum++
+						}
+					}
+				}
+
+				if (dealerSum < 17) {
+					dealerCards.push(dealerHit());
+				} else {
+					winCheck();
+				}
+			}
+		}
+
+		function hit() {
+			playerCards.push(playerHit())
+			var playerSum = 0
+
+			for (var i = 0; i < playerCards.length; i++) {
+				if (playerCards[i].rank == "2" || playerCards[i].rank == "3" || playerCards[i].rank == "4" || playerCards[i].rank == "5" || playerCards[i].rank == "6" || playerCards[i].rank == "7" || playerCards[i].rank == "8" || playerCards[i].rank == "9" || playerCards[i].rank == "10") {
+					playerSum += eval(playerCards[i].rank)
+				} else if (playerCards[i].rank == "J" || playerCards[i].rank == "Q" || playerCards[i].rank == "K"){
+					playerSum += 10
+				} else if (playerCards[i].rank == "A") {
+					if (playerSum + 11 > 21) {
+						playerSum++
+					} else {
+						playerSum += 11
+					}
+				}
+			}
+
+			if (playerSum > 21) {
+				playerSum = 0
+				for (var i = 0; i < playerCards.length; i++) {
+					if (playerCards[i].rank == "2" || playerCards[i].rank == "3" || playerCards[i].rank == "4" || playerCards[i].rank == "5" || playerCards[i].rank == "6" || playerCards[i].rank == "7" || playerCards[i].rank == "8" || playerCards[i].rank == "9" || playerCards[i].rank == "10") {
+						playerSum += eval(playerCards[i].rank)
+					} else if (playerCards[i].rank == "J" || playerCards[i].rank == "Q" || playerCards[i].rank == "K"){
+						playerSum += 10
+					} else if (playerCards[i].rank == "A") {
+						playerSum++
+					}
+				}
+			}
+
+			if (playerSum == 21) {
+				stay();
+			}
+
+			if (playerSum > 21) {
+				winCheck();
+			}
+		}
+	</script>
+</body>
+</html>
